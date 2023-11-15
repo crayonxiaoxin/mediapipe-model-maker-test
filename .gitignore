@@ -1,0 +1,8 @@
+.history
+.idea
+.DS_Store
+venv
+exported_model
+android_figurine
+rps_data_sample
+eye_target
