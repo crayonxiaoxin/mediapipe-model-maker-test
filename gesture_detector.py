@@ -103,7 +103,7 @@ def detect(error_callback=None, screen_size: tuple | None = None):
         image = draw_landmarks_on_image(image, results_gesture)
 
         # 右侧标题
-        # _title(image, window_title)
+        _title(image, window_title)
 
         # 帧率
         time_consuming = (time.time() - cost_start)
@@ -167,9 +167,18 @@ def draw_landmarks_on_image(rgb_image, detection_result):
         text_x = int(min(x_coordinates) * width)
         text_y = int(min(y_coordinates) * height) - MARGIN
 
-        print(handedness[0].category_name, gesture[0].category_name)
+        hand = handedness[0].category_name
+
+        # 如果翻转
+        if is_flip:
+            if hand == "Left":
+                hand = "Right"
+            elif hand == "Right":
+                hand = "Left"
+
+        print(hand, gesture[0].category_name)
         # Draw handedness (left or right hand) on the image.
-        cv2.putText(annotated_image, f"{handedness[0].category_name} {gesture[0].category_name}",
+        cv2.putText(annotated_image, f"{hand} {gesture[0].category_name}",
                     (text_x, text_y), cv2.FONT_HERSHEY_DUPLEX,
                     FONT_SIZE, HANDEDNESS_TEXT_COLOR, FONT_THICKNESS, cv2.LINE_AA)
 
