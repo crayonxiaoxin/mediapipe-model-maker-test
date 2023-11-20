@@ -23,7 +23,7 @@ print("validation_data size: ", validation_data.size)
 
 # 设置参数
 spec = object_detector.SupportedModels.MOBILENET_MULTI_AVG
-hparams = object_detector.HParams(export_dir='exported_model/object', epochs=50, batch_size=5)
+hparams = object_detector.HParams(export_dir='exported_model/object', epochs=30, batch_size=8)
 options = object_detector.ObjectDetectorOptions(
     supported_model=spec,
     hparams=hparams,
@@ -42,8 +42,7 @@ print(f"Validation coco metrics: {coco_metrics}")
 
 # 导出 Tensorflow Lite 模型
 model.export_model('object.tflite')
-exit(0)
-#
+
 # # 量化感知训练（int8 量化）
 # qat_hparams = object_detector.QATHParams(learning_rate=0.3, batch_size=4, epochs=10, decay_steps=6, decay_rate=0.96)
 # model.quantization_aware_training(train_data, validation_data, qat_hparams=qat_hparams)

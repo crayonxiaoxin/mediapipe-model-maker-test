@@ -68,7 +68,7 @@ def visualize(
 def detect(error_callback=None, screen_size: tuple | None = None):
     global is_flip
     # 配置模型
-    base_options = python.BaseOptions(model_asset_path="exported_model/object/object.tflite")
+    base_options = python.BaseOptions(model_asset_path="exported_model/object/object_int8_qat.tflite")
     options = vision.ObjectDetectorOptions(
         base_options=base_options,
         max_results=2,
