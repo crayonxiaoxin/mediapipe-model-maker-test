@@ -2,9 +2,10 @@ import os
 import json
 import tensorflow as tf
 
-assert tf.__version__.startswith('2')
-
 from mediapipe_model_maker import object_detector
+from dev import object_detector_for_mac
+
+assert tf.__version__.startswith('2')
 
 train_dataset_path = "eye_target/train"
 validation_dataset_path = "eye_target/validation"
@@ -30,7 +31,11 @@ options = object_detector.ObjectDetectorOptions(
 )
 
 # 训练模型
-model = object_detector.ObjectDetector.create(
+# model = object_detector.ObjectDetector.create(
+#     train_data=train_data,
+#     validation_data=validation_data,
+#     options=options)
+model = object_detector_for_mac.ObjectDetector.create(
     train_data=train_data,
     validation_data=validation_data,
     options=options)

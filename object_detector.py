@@ -34,41 +34,10 @@ TEXT_COLOR_GREEN = (0, 255, 0)
 XY_FPS = (50, 50)
 
 
-def visualize(
-        image,
-        detection_result
-) -> np.ndarray:
-    """Draws bounding boxes on the input image and return it.
-    Args:
-      image: The input RGB image.
-      detection_result: The list of all "Detection" entities to be visualize.
-    Returns:
-      Image with bounding boxes.
-    """
-    for detection in detection_result.detections:
-        # Draw bounding_box
-        bbox = detection.bounding_box
-        start_point = bbox.origin_x, bbox.origin_y
-        end_point = bbox.origin_x + bbox.width, bbox.origin_y + bbox.height
-        cv2.rectangle(image, start_point, end_point, TEXT_COLOR, 2)
-
-        # Draw label and score
-        category = detection.categories[0]
-        category_name = category.category_name
-        probability = round(category.score, 2)
-        result_text = category_name + ' (' + str(probability) + ')'
-        text_location = (MARGIN + bbox.origin_x,
-                         MARGIN + ROW_SIZE + bbox.origin_y)
-        cv2.putText(image, result_text, text_location, cv2.FONT_HERSHEY_PLAIN,
-                    FONT_SIZE, TEXT_COLOR, FONT_THICKNESS)
-
-    return image
-
-
 def detect(error_callback=None, screen_size: tuple | None = None):
     global is_flip
     # 配置模型
-    base_options = python.BaseOptions(model_asset_path="exported_model/object/object_int8_qat.tflite")
+    base_options = python.BaseOptions(model_asset_path="exported_model/object/object.tflite")
     options = vision.ObjectDetectorOptions(
         base_options=base_options,
         max_results=2,
@@ -142,6 +111,37 @@ def detect(error_callback=None, screen_size: tuple | None = None):
         elif wait_key == ord('r'):  # R - 重置
             print("r")
     cap.release()
+
+
+def visualize(
+        image,
+        detection_result
+) -> np.ndarray:
+    """Draws bounding boxes on the input image and return it.
+    Args:
+      image: The input RGB image.
+      detection_result: The list of all "Detection" entities to be visualize.
+    Returns:
+      Image with bounding boxes.
+    """
+    for detection in detection_result.detections:
+        # Draw bounding_box
+        bbox = detection.bounding_box
+        start_point = bbox.origin_x, bbox.origin_y
+        end_point = bbox.origin_x + bbox.width, bbox.origin_y + bbox.height
+        cv2.rectangle(image, start_point, end_point, TEXT_COLOR, 2)
+
+        # Draw label and score
+        category = detection.categories[0]
+        category_name = category.category_name
+        probability = round(category.score, 2)
+        result_text = category_name + ' (' + str(probability) + ')'
+        text_location = (MARGIN + bbox.origin_x,
+                         MARGIN + ROW_SIZE + bbox.origin_y)
+        cv2.putText(image, result_text, text_location, FONT_FACE,
+                    FONT_SIZE, TEXT_COLOR, FONT_THICKNESS)
+
+    return image
 
 
 if __name__ == "__main__":
