@@ -37,11 +37,11 @@ XY_FPS = (50, 50)
 def detect(error_callback=None, screen_size: tuple | None = None):
     global is_flip
     # 配置模型
-    base_options = python.BaseOptions(model_asset_path="exported_model/object/object.tflite")
+    base_options = python.BaseOptions(model_asset_path="exported_model/object/object_50_bak.tflite")
     options = vision.ObjectDetectorOptions(
         base_options=base_options,
         max_results=2,
-        score_threshold=0.35,
+        score_threshold=0.3,
         running_mode=vision.RunningMode.VIDEO,
     )
     detector = vision.ObjectDetector.create_from_options(options)
