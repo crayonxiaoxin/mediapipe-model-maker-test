@@ -1,18 +1,46 @@
 import time
 
-import mediapipe as mp
 import cv2
+import mediapipe as mp
 import numpy as np
 from mediapipe.tasks import python
 from mediapipe.tasks.python import vision
 
 """ 配置 """
 window_title = "Object Detector"
-is_flip = True
+is_flip = False  # 如果使用的是视频，则不需要翻转
+is_camera = False  # 使用摄像头或视频文件
 
 # 相机
 width = 1920
 height = 1080
+specified_size = True  # 使用以上指定的尺寸，否则，使用摄像头最大尺寸
+
+""" 模型 """
+# model_asset_path = "exported_model/object/object-lrate_0.26.tflite" # 2
+# model_asset_path = "exported_model/object/object_60.tflite"  # 3
+# model_asset_path = "exported_model/object/object_100.tflite"  # 1
+# model_asset_path = "exported_model/object/object_60_0.26.tflite"
+# model_asset_path = "exported_model/object/object-eye.tflite"
+
+""" 900样本 """
+# model_asset_path = "exported_model/object/ruler_30_26_v1.tflite"  # 1-闪烁中下 2-只能识别一小段 3-闪烁严重 4-闪烁轻微
+# model_asset_path = "exported_model/object/ruler_30_30_v1.tflite"  # 1-闪烁轻微 2-几乎无法识别 3-闪烁严重 4-闪烁中等，前半段严重
+# model_asset_path = "exported_model/object/ruler_50_26_v1.tflite"  # 1-闪烁中下 2-只能识别一小段 3-闪烁前半段严重 4-闪烁轻微
+# model_asset_path = "exported_model/object/ruler_50_30_v1.tflite"  # 1-闪烁轻微 2-几乎无法识别 3-闪烁前半段中上 4-闪烁中等，前半段严重
+# model_asset_path = "exported_model/object/ruler_60_26_v1.tflite"  # 1-闪烁中等 2-闪烁中等，后小段无法识别 3-前半段闪烁严重 4-前半段闪烁中上
+# model_asset_path = "exported_model/object/ruler_60_30_v1.tflite"  # 1-闪烁轻微 2-闪烁中等，后小段无法识别 3-闪烁轻微 4-闪烁轻微趋稳定
+
+""" 1000样本 """
+# model_asset_path = "exported_model/object/ruler_30_26_v2.tflite"  # 1-闪烁轻微趋稳定 234-闪烁严重
+# model_asset_path = "exported_model/object/ruler_30_30_v2.tflite"  # 13-闪烁轻微 2-前半段无法识别 4-闪烁轻微趋稳定
+# model_asset_path = "exported_model/object/ruler_50_26_v2.tflite"  # 1-闪烁轻微 2-只有中间一小段可以识别 3-闪烁严重 4-前半段闪烁严重
+model_asset_path = "exported_model/object/ruler_50_30_v2.tflite"  # 134-闪烁轻微 2-闪烁中等偏轻微
+# model_asset_path = "exported_model/object/ruler_60_26_v2.tflite"  # 1-闪烁轻微趋稳定 2-闪烁中等 3-前半段闪烁严重 4-闪烁轻微
+# model_asset_path = "exported_model/object/ruler_60_30_v2.tflite"  # 1-闪烁轻微 2-闪烁严重 3-相对稳定 4-闪烁轻微趋稳定
+
+video_file_path = "video/RAF_3.mp4"
+score_threshold = 0.3
 
 """ 标签 """
 LABEL_NO_CAMERA = "Please check your video capturing device."
@@ -35,13 +63,13 @@ XY_FPS = (50, 50)
 
 
 def detect(error_callback=None, screen_size: tuple | None = None):
-    global is_flip
+    global is_flip, width, height
     # 配置模型
-    base_options = python.BaseOptions(model_asset_path="exported_model/object/object_50_bak.tflite")
+    base_options = python.BaseOptions(model_asset_path=model_asset_path)
     options = vision.ObjectDetectorOptions(
         base_options=base_options,
-        max_results=2,
-        score_threshold=0.3,
+        max_results=1,
+        score_threshold=score_threshold,
         running_mode=vision.RunningMode.VIDEO,
     )
     detector = vision.ObjectDetector.create_from_options(options)
@@ -54,9 +82,22 @@ def detect(error_callback=None, screen_size: tuple | None = None):
         cv2.moveWindow(window_title, abs(int(x)), abs(int(y)))
 
     # 开启摄像头
-    cap = cv2.VideoCapture(0)
-    cap.set(cv2.CAP_PROP_FRAME_WIDTH, width)
-    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
+    if is_camera:
+        # 开启摄像头
+        cap = cv2.VideoCapture(0)
+        if specified_size:
+            cap.set(cv2.CAP_PROP_FRAME_WIDTH, 10000)
+            cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 10000)
+            width = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
+            height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
+        cap.set(cv2.CAP_PROP_FRAME_WIDTH, width)
+        cap.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
+    else:
+        # 开启视频文件
+        cap = cv2.VideoCapture(video_file_path)
+        width = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
+        height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
+
     fps = cap.get(cv2.CAP_PROP_FPS)
 
     # 如果没有摄像头
@@ -74,7 +115,7 @@ def detect(error_callback=None, screen_size: tuple | None = None):
         success, image = cap.read()
         if not success:
             print("failed!!!")
-            continue
+            break
         cost_start = time.time()
         frame_index += 1
         frame_timestamp_ms = int(round(1000 * frame_index / fps))

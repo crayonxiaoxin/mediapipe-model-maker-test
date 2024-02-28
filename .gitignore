@@ -8,5 +8,7 @@ rps_data_sample
 eye_target
 video
 exported_jpg
+gesture_imgs
 models
 dev.py
+ruler_target

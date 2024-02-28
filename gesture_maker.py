@@ -2,11 +2,11 @@ import os
 
 from mediapipe_model_maker import gesture_recognizer
 
-dataset_path = "rps_data_sample"
+dataset_path = "gesture_imgs"
 export_model_dir = "exported_model/gesture"
 export_model_name = "gesture_recognizer"
 train_learning_rate = 0.001
-train_epochs = 10
+train_epochs = 30
 train_batch_size = 2
 validation_batch_size = 1
 

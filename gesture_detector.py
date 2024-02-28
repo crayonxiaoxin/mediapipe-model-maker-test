@@ -49,9 +49,11 @@ def detect(error_callback=None, screen_size: tuple | None = None):
 
     # 配置模型
     base_options = python.BaseOptions(model_asset_path=MODEL_HAND_GESTURE, delegate="GPU")
-    hand_options = vision.GestureRecognizerOptions(base_options=base_options,
-                                                   num_hands=hands_count,
-                                                   running_mode=vision.RunningMode.VIDEO, )
+    hand_options = vision.GestureRecognizerOptions(
+        base_options=base_options,
+        num_hands=hands_count,
+        running_mode=vision.RunningMode.VIDEO,
+    )
     recognizer = vision.GestureRecognizer.create_from_options(hand_options)
 
     # 窗口位置
